@@ -61,7 +61,10 @@ def onMessage(data):
 
 def onEventAsync(event):
     try:
-        request = unescape(event["text"])
+        request: str = unescape(event["text"])
+        if request.startswith(">"):
+            print("Ignored:", request)
+            return
         print("OpenAI << ", request)
         response = ask(request)
         print("OpenAI >> ", response)
