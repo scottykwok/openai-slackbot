@@ -62,23 +62,23 @@ def onMessage(data):
 def onEventAsync(event):
     try:
         request = unescape(event["text"])
-        if request and request.startswith(">"):
-            print("Ignored:", request)
+        if request.startswith(">"):
+            print("Ignored << ", request)
+            return
+        print("OpenAI << ", request)
+        response = ask(request)
+        print("OpenAI >> ", response)
+
+        if BOT_REPLY_IN_JSON:
+            answer = str(response)
         else:
-            print("OpenAI << ", request)
-            response = ask(request)
-            print("OpenAI >> ", response)
+            answer = "```" + response["choices"][0]["text"] + "```"
 
-            if BOT_REPLY_IN_JSON:
-                answer = str(response)
-            else:
-                answer = "```" + response["choices"][0]["text"] + "```"
-
-            slackSender.chat_postMessage(
-                channel=event["channel"],
-                text=answer,
-                thread_ts=event["ts"],
-            )
+        slackSender.chat_postMessage(
+            channel=event["channel"],
+            text=answer,
+            thread_ts=event["ts"],
+        )
     except Exception as e:
         print(e)
 
