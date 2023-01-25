@@ -75,7 +75,7 @@ python3 bot.py
 ## Screenshots
 Here is an example of asking the bot to generate a login page.
 
-<img src="img/output_sample1.jpg" width="700" />
+<img src="img/output_sample1.jpg"/>
 
 After removing the wrong integrity checksum, the generated HTML looks pretty decent:
 
