@@ -1,3 +1,4 @@
+# OpenAI API integration with SlackBot
 ## Usage
 1. Create your own `.env` based on `.env.sample` . The following keys must be configured:
 ```shell
@@ -73,11 +74,11 @@ python3 bot.py
 ```
 
 ## Screenshots
-Here is an example of asking the bot to generate a login page.
+Here is a sample output of asking the bot to generate a login page.
 
 <img src="img/output_sample1.jpg"/>
 
-After removing the wrong integrity checksum, the generated HTML looks pretty decent:
+After deleting the wrong tailwind integrity checksum, the generated HTML actually not bad:
 
 <img src="img/output_sample1_render.jpg"/>
 
