@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  bot:
+    build:
+      context: ./
+    image: openai-slackbot-bot
+    restart: always
+    container_name: openai-slackbot-bot
+    logging:
+      driver: "local"
+      options:
+        max-size: 100m
+        max-file: "5"
+    env_file:
+      - .env
+    expose:
+      - 3000
+  
+  ngrok:
+    image: ngrok/ngrok:alpine
+    restart: always
+    container_name: openai-slackbot-ngrok
+    env_file:
+      - .env
+    command: 'http bot:3000'
+    ports:
+      - 127.0.0.1:4040:4040
