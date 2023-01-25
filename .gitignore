@@ -2,3 +2,4 @@
 .vscode/*
 .env
 .env.dev
+.DS_Store

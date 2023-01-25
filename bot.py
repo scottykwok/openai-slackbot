@@ -73,15 +73,15 @@ def onEventAsync(event):
             answer = str(response)
         else:
             answer = "```" + response["choices"][0]["text"] + "```"
-
-        slackSender.chat_postMessage(
-            channel=event["channel"],
-            text=answer,
-            thread_ts=event["ts"],
-        )
     except Exception as e:
+        answer = "```" + str(e) + "```"
         print(e)
 
+    slackSender.chat_postMessage(
+        channel=event["channel"],
+        text=answer,
+        thread_ts=event["ts"],
+    )
 
 # Flask server on port 3000, endpoint: /slack/events
 slackRecevier.start(host="0.0.0.0", port=BOT_PORT)
