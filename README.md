@@ -1,4 +1,3 @@
-
 ## Usage
 1. Create your own `.env` based on `.env.sample` . The following keys must be configured:
 ```shell
@@ -64,7 +63,7 @@ OPENAI_API_N=1
 # Set to 1 and the bot will reply in raw json
 BOT_REPLY_IN_JSON=1
 ```
-## Dev
+## Local development using venv
 ```shell
 python3 -m venv .venv
 source .venv/bin/activate
@@ -72,6 +71,17 @@ pip install -r requirements.txt
 ngrok http 3000
 python3 bot.py
 ```
+
+## Screenshots
+Here is an example of asking the bot to generate a login page.
+
+<img src="img/output_sample1.jpg" width="700" />
+
+After removing the wrong integrity checksum, the generated HTML looks pretty decent:
+
+<img src="img/output_sample1_render.jpg"/>
+
+
 
 ## Disclaimer
 This is a personal project for fun and is not affiliated with OpenAI or Slack in any way.
