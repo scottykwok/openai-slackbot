@@ -24,9 +24,9 @@ python3 get_ngrok_url.py
 #Output: https://xxxx-xxx-xxx-xxx-xx.xx.ngrok.io
 ```
 
-4. Goto your Slack App "Event Subscriptions" page and put the Ngrok URL into the "Request URL". If verified successfully, you will be able to "Save Changes".
+4. Goto your Slack App "Event Subscriptions" page and put the Ngrok URL into the "Request URL". And add "Subscribe to bot events". If verified successfully, you will be able to "Save Changes".
    
-<img src="img/slack_url.jpg" width="500" />
+<img src="img/slack_event.jpg" width="500" />
 
 5. Done! You can now direct message the bot or add the bot to your channel(s). It will reply to the conversation thread.
 
