@@ -3,3 +3,4 @@ requests
 python-dotenv
 slack-sdk>=3,<4
 slackeventsapi>=3,<4
+lru-dict
