@@ -53,6 +53,7 @@ Remember to "Reinstall to Workspace".
 
 ## More
 You can also play around with other settings:
+
 ```shell
 # Some of the OpenAI params
 OPENAI_API_ENGINE=text-davinci-003
@@ -61,8 +62,19 @@ OPENAI_API_TEMPERATURE=0
 OPENAI_API_TOP_P=1
 OPENAI_API_N=1
 
-# Set to 1 and the bot will reply in raw json
-BOT_REPLY_IN_JSON=1
+# Bot
+BOT_MAX_WORKERS=5
+BOT_PORT=3000
+
+# The max number of chars to send in the request history. Note the larger the value, the more tokens may be consumed. According to OpenAI, 1 token is ~4 chars. So 2000 chars is ~500 tokens
+BOT_MAX_HISTORY_CHARS=2000
+
+# For debug, if set to true, the bot will dump the whole JSON response in slack message
+BOT_REPLY_IN_JSON=False
+
+## For debug, if set to true, the bot will append meta data in the in slack message
+BOT_REPLY_SHOW_META=False
+
 ```
 ## Local development using venv
 ```shell
