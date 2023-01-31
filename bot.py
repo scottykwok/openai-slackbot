@@ -9,6 +9,7 @@ from slackeventsapi import SlackEventAdapter
 from slack_sdk.web import WebClient
 from html import unescape
 from history import ConversationHistory
+from coding import ProgrammingToComment
 
 dotenv.load_dotenv()
 
@@ -32,8 +33,8 @@ OPENAI_API_N = int(os.environ["OPENAI_API_N"])
 # Threads
 BOT_MAX_WORKERS = int(os.environ["BOT_MAX_WORKERS"])
 BOT_PORT = int(os.environ["BOT_PORT"])
-BOT_REPLY_IN_JSON = os.getenv('BOT_REPLY_IN_JSON', 'False').lower() == 'true'
-BOT_REPLY_SHOW_META = os.getenv('BOT_REPLY_SHOW_META', 'False').lower() == 'true'
+BOT_REPLY_IN_JSON = os.getenv("BOT_REPLY_IN_JSON", "False").lower() == "true"
+BOT_REPLY_SHOW_META = os.getenv("BOT_REPLY_SHOW_META", "False").lower() == "true"
 BOT_MAX_HISTORY_CHARS = int(os.environ["BOT_MAX_HISTORY_CHARS"])
 executor = ThreadPoolExecutor(max_workers=BOT_MAX_WORKERS)
 reCodeBlock = re.compile(r"```([^`]*)```")
@@ -44,7 +45,7 @@ HUMAN = "Q:"
 BOT = "A:"
 
 
-def ask(text):
+def requestTextCompletion(text):
     return openai.Completion.create(
         engine=OPENAI_API_ENGINE,
         prompt=text,
@@ -57,6 +58,21 @@ def ask(text):
         # presence_penalty=0
         # logprobs=None,
         stop=[HUMAN],
+    )
+
+
+def requestCodeCompletion(text):
+    return openai.Completion.create(
+        engine="code-davinci-002",
+        prompt=text,
+        max_tokens=OPENAI_API_MAX_TOKENS,
+        temperature=OPENAI_API_TEMPERATURE,
+        top_p=OPENAI_API_TOP_P,
+        n=OPENAI_API_N,
+        stream=False,
+        frequency_penalty=0,
+        presence_penalty=0,
+        stop=['"""'],
     )
 
 
@@ -75,12 +91,28 @@ def reformat(text, meta):
         return text + meta
     return "``` " + text + meta + " ```"
 
+
 def parseMeta(response):
     total_tokens = int(response["usage"]["total_tokens"])
     # model = response["model"]
     # objective = response["object"]
     # return f"\n ({total_tokens} tokens | {model} | {objective})"
     return f"\n ({total_tokens} tokens)"
+
+
+def parseCodingRequest(request):
+    lower = request.lower()
+    for lang, commentOut in ProgrammingToComment.items():
+        if lower.startswith(lang):
+            comment = commentOut(request.replace(lang, ""))
+            return lang, comment
+    return None, None
+
+
+def getUsername(user_id):
+    response = slackSender.users_info(user=user_id)
+    return response["user"]["name"]
+
 
 @slackRecevier.on("message")
 def onMessage(data):
@@ -100,16 +132,39 @@ def onEventAsync(event):
                 print("Ignored << ", request)
                 return
 
-            # History
-            ts = event["thread_ts"] if "thread_ts" in event else event["ts"]
-            history.appendMessage(ts, f"{HUMAN} {request}\n")
-            request = "\n".join(
-                history.retrieveMessages(ts, max_length=BOT_MAX_HISTORY_CHARS)
-            )
+            ### Dalle - disabled , expensive call but result not impressive
+            # if request.startswith("img:"):
+            #     _request = request.replace("img:", "")
+            #     print("openai.Image << ", _request)
+            #     response = openai.Image.create(prompt=_request, n=1, size="512x512")
+            #     print("openai.Image >> ", response)
+            #     image_url = response["data"][0]["url"]
+            #     slackSender.chat_postMessage(
+            #         channel=event["channel"],
+            #         text=_request,
+            #         attachments=[{"text": _request, "image_url": image_url}],
+            #         thread_ts=event["ts"],
+            #     )
+            #     return
 
-            print("OpenAI << ", request)
-            response = ask(request)
-            print("OpenAI >> ", response)
+            # Thread ID if any
+            ts = event["thread_ts"] if "thread_ts" in event else event["ts"]
+
+            lang, comment = parseCodingRequest(request)
+            if lang and comment:
+                print(f"openai.code.{lang} << ", comment)
+                response = requestCodeCompletion(comment)
+                print(f"openai.code.{lang} >> ", response)
+            else:
+                # History
+                history.appendMessage(ts, f"{HUMAN} {request}\n")
+                request = "\n".join(
+                    history.retrieveMessages(ts, max_length=BOT_MAX_HISTORY_CHARS)
+                )
+                # OpenAI
+                print(f"openai.Completion << ", request)
+                response = requestTextCompletion(request)
+                print(f"openai.Completion >> ", response)
 
             if BOT_REPLY_IN_JSON:
                 answer = str(response)
